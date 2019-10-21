@@ -26,19 +26,42 @@ module CustomShapes
     end
 
     def add
-      [left, right, top, bottom].each(&:add)
+      [@left, @right, @top, @bottom].each(&:add)
     end
 
     def remove
-      [left, right, top, bottom].each(&:remove)
+      [@left, @right, @top, @bottom].each(&:remove)
     end
 
     def contains?(coords)
-      x <= coords.x && coords.x <= x + size && y <= coords.y && coords.y <= y + size
+      @x <= coords.x && coords.x <= @x + @size && @y <= coords.y && coords.y <= @y + @size
+    end
+  end
+
+  class Grid
+    def initialize(x:, y:, size:, rows:, cols:, width: 1, color: 'white')
+      cell_height = size / rows
+      cell_width  = size / cols
+
+      @lines = (0...rows).map do |row|
+        Line.new(x1: x, y1: y + row * cell_height,
+                 x2: x + size, y2: y + row * cell_height,
+                 width: width, color: color)
+      end
+
+      @lines += (0...cols).map do |col|
+        Line.new(x1: x + col * cell_width, y1: y,
+                 x2: x + col * cell_width, y2: y + size,
+                 width: width, color: color)
+      end
     end
 
-    private
+    def add
+      @lines.each(&:add)
+    end
 
-    attr_reader :left, :right, :top, :bottom
+    def remove
+      @lines.each(&:remove)
+    end
   end
 end
