@@ -1,5 +1,4 @@
-require 'ruby2d/renderable'
-require 'ruby2d/line'
+require 'ruby2d'
 
 module CustomShapes
   class Square
@@ -40,9 +39,29 @@ module CustomShapes
   end
 
   class Grid
-    def initialize(x:, y:, size:, rows:, cols:, width: 1, color: 'white')
-      cell_height = size / rows
-      cell_width  = size / cols
+    Cell = Struct.new(:row, :column) do
+      def inspect
+        "#<#{self.class.name} row=#{row} column=#{column}>"
+      end
+
+      def to_s
+        "(#{row}, #{column})"
+      end
+    end
+
+    attr_reader :cell_height, :cell_width
+
+    def initialize(x:, y:, size:, rows:, columns:, width: 1, color: 'white')
+      @x       = x
+      @y       = y
+      @size    = size
+      @rows    = rows
+      @columns = columns
+      @width   = width
+      @color   = color
+
+      @cell_height = size / rows
+      @cell_width  = size / columns
 
       @lines = (0...rows).map do |row|
         Ruby2D::Line.new(x1: x, y1: y + row * cell_height,
@@ -50,9 +69,9 @@ module CustomShapes
                          width: width, color: color)
       end
 
-      @lines += (0...cols).map do |col|
-        Ruby2D::Line.new(x1: x + col * cell_width, y1: y,
-                         x2: x + col * cell_width, y2: y + size,
+      @lines += (0...columns).map do |column|
+        Ruby2D::Line.new(x1: x + column * cell_width, y1: y,
+                         x2: x + column * cell_width, y2: y + size,
                          width: width, color: color)
       end
     end
@@ -63,6 +82,13 @@ module CustomShapes
 
     def remove
       @lines.each(&:remove)
+    end
+
+    def cell_for(coords)
+      row    = (coords.y - @y) / @cell_height + 1
+      column = (coords.x - @x) / @cell_width  + 1
+
+      Cell.new(row, column)
     end
   end
 end

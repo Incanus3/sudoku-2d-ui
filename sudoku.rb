@@ -5,14 +5,17 @@ require_relative 'shapes'
 module Sudoku
   class UI
     class Board
-      SIZE = 900
+      SIZE = 600
       X    = 50
       Y    = 50
 
       def initialize
-        @main_border   = CustomShapes::Square.new(x: X, y: Y, size: SIZE, width: 5,                   color: 'green')
-        @cells_grid    = CustomShapes::Grid.new(  x: X, y: Y, size: SIZE, rows: 9, cols: 9, width: 1, color: 'green')
-        @sections_grid = CustomShapes::Grid.new(  x: X, y: Y, size: SIZE, rows: 3, cols: 3, width: 3, color: 'green')
+        @main_border   = CustomShapes::Square.new(
+          x: X, y: Y, size: SIZE,                      width: 5, color: 'green')
+        @cells_grid    = CustomShapes::Grid.new(
+          x: X, y: Y, size: SIZE, rows: 9, columns: 9, width: 1, color: 'green')
+        @sections_grid = CustomShapes::Grid.new(
+          x: X, y: Y, size: SIZE, rows: 3, columns: 3, width: 3, color: 'green')
       end
 
       def add
@@ -25,6 +28,12 @@ module Sudoku
 
       def contains?(coords)
         @main_border.contains?(coords)
+      end
+
+      def handle_event(event)
+        cell = @cells_grid.cell_for(event)
+
+        puts "you clicked #{cell}"
       end
     end
 
@@ -66,6 +75,7 @@ module Sudoku
 
       @window.on :mouse_down do |event|
         @event_text.text = "#{get_event_text(event)}, hit the board: #{@board.contains?(event) ? 'yes' : 'no'}"
+        @board.handle_event(event) if @board.contains?(event)
       end
     end
   end
