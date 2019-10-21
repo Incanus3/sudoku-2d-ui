@@ -31,10 +31,10 @@ module Sudoku
 
     def initialize
       @tick       = 0
-      @window     = Ruby2D::Window.current
+      @window     = Ruby2D::Window.new
       @board      = Board.new
-      @info_text  = TextUtils::draw_text(get_info_text, y: 10)
-      @event_text = TextUtils::draw_text(''           , y: @info_text.y + TextUtils::DEFAULT_FONT_SIZE + 5)
+      @info_text  = TextUtils.draw_text(get_info_text, y: 10)
+      @event_text = TextUtils.draw_text(''           , y: @info_text.y + TextUtils::DEFAULT_FONT_SIZE + 5)
 
       @window.set(title: 'sudoku', width: Board::SIZE + 2 * Board::X, height: Board::SIZE + 2 * Board::Y)
     end

@@ -9,6 +9,6 @@ module TextUtils
 
   def draw_text(text, x: 10, y: 10,
                 font: DEFAULT_FONT, size: DEFAULT_FONT_SIZE, color: DEFAULT_FONT_COLOR)
-    Text.new(text, font: font, size: size, color: color, x: x, y: y)
+    Ruby2D::Text.new(text, font: font, size: size, color: color, x: x, y: y)
   end
 end
