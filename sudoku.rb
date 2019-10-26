@@ -4,12 +4,31 @@ require_relative 'shapes'
 
 module Sudoku
   class UI
+    class Output
+      def initialize(widget:)
+        @widget = widget
+      end
+
+      def puts(message)
+        @widget.text = message
+      end
+
+      def p(thing)
+        @widget.text = thing.inspect
+      end
+
+      alias_method :<<, :puts
+    end
+
+
     class Board
       SIZE = 600
       X    = 50
       Y    = 50
 
-      def initialize
+      def initialize(output: $stdout)
+        @output = output
+
         @main_border   = CustomShapes::Square.new(
           x: X, y: Y, size: SIZE,                      width: 5, color: 'green')
         @cells_grid    = CustomShapes::Grid.new(
@@ -33,17 +52,19 @@ module Sudoku
       def handle_event(event)
         cell = @cells_grid.cell_for(event)
 
-        puts "you clicked #{cell}"
+        @output << "you clicked #{cell}"
       end
     end
 
 
     def initialize
-      @tick       = 0
-      @window     = Ruby2D::Window.new
-      @board      = Board.new
-      @info_text  = TextUtils.draw_text(get_info_text, y: 10)
-      @event_text = TextUtils.draw_text(''           , y: @info_text.y + TextUtils::DEFAULT_FONT_SIZE + 5)
+      @tick         = 0
+      @window       = Ruby2D::Window.new
+      @info_text    = TextUtils.draw_text(get_info_text, y: 10)
+      @event_text   = TextUtils.draw_text(''           , y: @info_text.y + TextUtils::DEFAULT_FONT_SIZE + 5)
+      @info_output  = Output.new(widget: @info_text)
+      @event_output = Output.new(widget: @event_text)
+      @board        = Board.new(output: @event_output)
 
       @window.set(title: 'sudoku', width: Board::SIZE + 2 * Board::X, height: Board::SIZE + 2 * Board::Y)
     end
@@ -69,12 +90,12 @@ module Sudoku
 
     def set_event_handlers
       @window.update do
-        @tick          += 1
-        @info_text.text = get_info_text
+        @tick += 1
+        @info_output << get_info_text
       end
 
       @window.on :mouse_down do |event|
-        @event_text.text = "#{get_event_text(event)}, hit the board: #{@board.contains?(event) ? 'yes' : 'no'}"
+        @event_output << "#{get_event_text(event)}, hit the board: #{@board.contains?(event) ? 'yes' : 'no'}"
         @board.handle_event(event) if @board.contains?(event)
       end
     end
