@@ -22,19 +22,20 @@ module Sudoku
 
 
     class Board
-      SIZE = 600
-      X    = 50
-      Y    = 50
+      attr_reader :x, :y, :size
 
-      def initialize(output: $stdout)
+      def initialize(x:, y:, size:, output: $stdout)
+        @x      = x
+        @y      = y
+        @size   = size
         @output = output
 
         @main_border   = CustomShapes::Square.new(
-          x: X, y: Y, size: SIZE,                      width: 5, color: 'green')
+          x: x, y: y, size: size,                      width: 5, color: 'green')
         @cells_grid    = CustomShapes::Grid.new(
-          x: X, y: Y, size: SIZE, rows: 9, columns: 9, width: 1, color: 'green')
+          x: x, y: y, size: size, rows: 9, columns: 9, width: 1, color: 'green')
         @sections_grid = CustomShapes::Grid.new(
-          x: X, y: Y, size: SIZE, rows: 3, columns: 3, width: 3, color: 'green')
+          x: x, y: y, size: size, rows: 3, columns: 3, width: 3, color: 'green')
       end
 
       def add
@@ -64,9 +65,9 @@ module Sudoku
       @event_text   = TextUtils.draw_text(''           , y: @info_text.y + TextUtils::DEFAULT_FONT_SIZE + 5)
       @info_output  = Output.new(widget: @info_text)
       @event_output = Output.new(widget: @event_text)
-      @board        = Board.new(output: @event_output)
+      @board        = Board.new(x: 50, y: 50, size: 600, output: @event_output)
 
-      @window.set(title: 'sudoku', width: Board::SIZE + 2 * Board::X, height: Board::SIZE + 2 * Board::Y)
+      @window.set(title: 'sudoku', width: @board.size + 2 * @board.x, height: @board.size + 2 * @board.y)
     end
 
     def show
