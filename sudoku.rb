@@ -30,10 +30,14 @@ module Sudoku
         @size   = size
         @output = output
 
+        numbers = (1..9).to_a
+        @matrix = numbers.map {|n| numbers.rotate(n-1)}
+
         @main_border   = CustomShapes::Square.new(
           x: x, y: y, size: size,                      width: 5, color: 'green')
-        @cells_grid    = CustomShapes::Grid.new(
-          x: x, y: y, size: size, rows: 9, columns: 9, width: 1, color: 'green')
+        @cells_grid    = CustomShapes::GridWithChars.new(
+          x: x, y: y, size: size, rows: 9, columns: 9, width: 1, color: 'green',
+          chars_matrix: @matrix)
         @sections_grid = CustomShapes::Grid.new(
           x: x, y: y, size: size, rows: 3, columns: 3, width: 3, color: 'green')
       end
@@ -93,11 +97,19 @@ module Sudoku
       @window.update do
         @tick += 1
         @info_output << get_info_text
+
+        # test showing and hiding of the whole board
+        # @board.add    if @tick % 120 < 60
+        # @board.remove if @tick % 120 > 60
       end
 
       @window.on :mouse_down do |event|
         @event_output << "#{get_event_text(event)}, hit the board: #{@board.contains?(event) ? 'yes' : 'no'}"
         @board.handle_event(event) if @board.contains?(event)
+      end
+
+      @window.on :key_down do |event|
+        exit if event.key == 'q'
       end
     end
   end

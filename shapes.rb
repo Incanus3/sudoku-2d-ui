@@ -1,4 +1,5 @@
 require 'ruby2d'
+require_relative 'utils'
 
 module CustomShapes
   class Square
@@ -60,8 +61,8 @@ module CustomShapes
       @width   = width
       @color   = color
 
-      @cell_height = size / rows
-      @cell_width  = size / columns
+      @cell_height = size.to_f / rows
+      @cell_width  = size.to_f / columns
 
       @lines = (0...rows).map do |row|
         Ruby2D::Line.new(x1: x, y1: y + row * cell_height,
@@ -85,10 +86,38 @@ module CustomShapes
     end
 
     def cell_for(coords)
-      row    = (coords.y - @y) / @cell_height + 1
-      column = (coords.x - @x) / @cell_width  + 1
+      row    = ((coords.y - @y) / @cell_height + 1).to_i
+      column = ((coords.x - @x) / @cell_width  + 1).to_i
 
       Cell.new(row, column)
+    end
+  end
+
+  class GridWithChars < Grid
+    def initialize(chars_matrix:, **kwargs)
+      super(**kwargs)
+
+      @chars_matrix = chars_matrix
+      @char_texts   = @chars_matrix.each_with_index.flat_map do |row_chars, row_index|
+        row_chars.each_with_index.map do |col_char, col_index|
+          TextUtils.draw_text(col_char,
+                              x: @x + col_index * @cell_width  + 1.0/4  * @cell_width,
+                              y: @y + row_index * @cell_height + 1.0/10 * @cell_height,
+                              size: 3.0/4 * @cell_height)
+        end
+      end
+    end
+
+    def add
+      super
+
+      @char_texts.each(&:add)
+    end
+
+    def remove
+      super
+
+      @char_texts.each(&:remove)
     end
   end
 end
