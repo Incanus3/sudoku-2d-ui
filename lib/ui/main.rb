@@ -18,10 +18,13 @@ module Sudoku
       window_height = board_size + 2 * margin + texts_height
 
       @tick         = 0
-      @window       = Ruby2D::Window.new(title: 'sudoku', width: window_width, height: window_height)
-      @info_text    = Shapes::Text.new(get_info_text, x: full_spacer, y: full_spacer,
+      @window       = Ruby2D::Window.new(title: 'sudoku',
+                                         width: window_width, height: window_height)
+      @info_text    = Shapes::Text.new(info_text,
+                                       x: full_spacer, y: full_spacer,
                                        size: font_size, color: 'green')
-      @event_text   = Shapes::Text.new('', x: full_spacer,
+      @event_text   = Shapes::Text.new('',
+                                       x: full_spacer,
                                        y: @info_text.y + @info_text.size + half_spacer,
                                        size: font_size, color: 'green')
       @info_output  = Output.for(widget: @info_text)
@@ -40,10 +43,10 @@ module Sudoku
 
     def board(x:, y:, size:)
       numbers            = (1..9).to_a
-      empty_matrix       = (0..8).map {|i| numbers.map {nil}}
-      full_matrix        = (0..8).map {|i| numbers.rotate(i-1)}
+      # empty_matrix       = (0..8).map { |i| numbers.map { nil } }
+      # full_matrix        = (0..8).map { |i| numbers.rotate(i - 1) }
       alternating_matrix = (0..8).map do |i|
-        numbers.rotate(i).each_with_index.map {|num, j| num if (i + j).even?}
+        numbers.rotate(i).each_with_index.map { |num, j| num if (i + j).even? }
       end
 
       Board.new(matrix: alternating_matrix,
@@ -53,14 +56,15 @@ module Sudoku
     end
 
     def horizontal_separator(position:, length:, offset: 0, width: 1, color: 'green')
-      Shapes::Line.new(x1: offset, y1: position, x2: offset + length, y2: position, width: width, color: color)
+      Shapes::Line.new(x1: offset, y1: position, x2: offset + length, y2: position,
+                       width: width, color: color)
     end
 
-    def get_info_text
+    def info_text
       "time: #{Time.now.strftime('%T')}, tick: #{@tick}"
     end
 
-    def get_event_text(event)
+    def event_text(event)
       case event
       when Ruby2D::Window::MouseEvent
         "clicked x: #{event.x}, y: #{event.y}"
@@ -70,7 +74,7 @@ module Sudoku
     def set_event_handlers
       @window.update do
         @tick += 1
-        @info_output << get_info_text
+        @info_output << info_text
 
         # test showing and hiding of the whole board
         # @board.add    if @tick % 120 < 60
@@ -78,7 +82,9 @@ module Sudoku
       end
 
       @window.on :mouse_down do |event|
-        @event_output << "#{get_event_text(event)}, hit the board: #{@board.contains?(event) ? 'yes' : 'no'}"
+        hit_board = @board.contains?(event)
+
+        @event_output << "#{event_text(event)}, hit the board: #{hit_board ? 'yes' : 'no'}"
         @board.handle_event(event) if @board.contains?(event)
       end
 

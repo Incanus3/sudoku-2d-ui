@@ -4,7 +4,8 @@ module Shapes
   class Grid
     Cell = Struct.new(:row, :column, :x, :y, :width, :height, keyword_init: true) do
       def inspect
-        "#<#{self.class.name} row=#{row} column=#{column} x=#{x} y=#{y} width=#{width} heigth=#{height}>"
+        "#<#{self.class.name} row=#{row} column=#{column} x=#{x.to_i} y=#{y.to_i} " \
+          "width=#{width.to_i} heigth=#{height.to_i}>"
       end
 
       def to_s
@@ -63,9 +64,9 @@ module Shapes
     def initialize(chars_matrix:, **kwargs)
       super(**kwargs) do |cell|
         Text.new(chars_matrix[cell.row - 1][cell.column - 1],
-                            x: cell.x + 1.0/3.5 * cell.width,
-                            y: cell.y + 1.0/12  * cell.height,
-                            size: 3.0/4 * cell.height)
+                 x: cell.x + 1.0 / 3.5 * cell.width,
+                 y: cell.y + 1.0 / 12  * cell.height,
+                 size: 3.0 / 4 * cell.height)
       end
     end
   end

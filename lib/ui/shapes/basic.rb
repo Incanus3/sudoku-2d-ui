@@ -4,9 +4,9 @@ module Shapes
   Line = Ruby2D::Line
 
   class Text < SimpleDelegator
-    DEFAULT_FONT       = 'DejaVuSansMono.ttf'
+    DEFAULT_FONT       = 'DejaVuSansMono.ttf'.freeze
     DEFAULT_FONT_SIZE  = 12
-    DEFAULT_FONT_COLOR = 'white'
+    DEFAULT_FONT_COLOR = 'white'.freeze
 
     def initialize(text, x:, y:,
                    font: DEFAULT_FONT, size: DEFAULT_FONT_SIZE, color: DEFAULT_FONT_COLOR)
@@ -25,6 +25,10 @@ module Shapes
       @border_width = border_width
       @border_color = border_color
 
+      init_borders
+    end
+
+    private def init_borders
       @left   = Line.new(x1: x, y1: y,
                          x2: x, y2: y + height,
                          width: border_width, color: border_color)

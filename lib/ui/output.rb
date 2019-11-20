@@ -17,7 +17,7 @@ module Sudoku
         @widget.text = thing.inspect
       end
 
-      alias_method :<<, :puts
+      alias << puts
     end
   end
 end
