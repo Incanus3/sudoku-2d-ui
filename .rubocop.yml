@@ -14,7 +14,7 @@ Metrics/ParameterLists:
   CountKeywordArgs: false
 
 Naming/UncommunicativeMethodParamName:
-  AllowedNames: ['x', 'y', 'z']
+  AllowedNames: ['x', 'y', 'z', 'id']
 
 Style/AccessModifierDeclarations:
   Enabled: false

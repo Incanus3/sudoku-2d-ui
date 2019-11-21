@@ -9,28 +9,38 @@ module Sudoku
   class UI
     DEFAULT_BOARD_SIZE = 600
 
-    def initialize(board_size: DEFAULT_BOARD_SIZE, margin: board_size / 15)
-      full_spacer   = margin / 5
-      half_spacer   = margin / 10
-      font_size     = full_spacer * 1.5
-      texts_height  = 2 * font_size + 3 * full_spacer
-      window_width  = board_size + 2 * margin
-      window_height = board_size + 2 * margin + texts_height
+    def initialize(grid, board_size: DEFAULT_BOARD_SIZE, margin: board_size / 15)
+      @tick = 0
 
-      @tick         = 0
-      @window       = Ruby2D::Window.new(title: 'sudoku',
-                                         width: window_width, height: window_height)
-      @info_text    = Shapes::Text.new(info_text,
-                                       x: full_spacer, y: full_spacer,
-                                       size: font_size, color: 'green')
-      @event_text   = Shapes::Text.new('',
-                                       x: full_spacer,
-                                       y: @info_text.y + @info_text.size + half_spacer,
-                                       size: font_size, color: 'green')
+      init_sizes(board_size, margin)
+      init_window
+
       @info_output  = Output.for(widget: @info_text)
       @event_output = Output.for(widget: @event_text)
-      @separator    = horizontal_separator(position: texts_height, length: window_width)
-      @board        = board(x: margin, y: texts_height + margin, size: board_size)
+
+      @board = board(grid, x: margin, y: texts_height + margin, size: board_size)
+    end
+
+    private def init_sizes(board_size, margin)
+      @full_spacer   = margin / 5
+      @half_spacer   = margin / 10
+      @font_size     = full_spacer * 1.5
+      @texts_height  = 2 * font_size + 3 * full_spacer
+      @window_width  = board_size + 2 * margin
+      @window_height = board_size + 2 * margin + texts_height
+    end
+
+    private def init_window
+      @window     = Ruby2D::Window.new(title: 'sudoku',
+                                       width: window_width, height: window_height)
+      @info_text  = Shapes::Text.new(info_text,
+                                     x: full_spacer, y: full_spacer,
+                                     size: font_size, color: 'green')
+      @event_text = Shapes::Text.new('',
+                                     x: full_spacer,
+                                     y: @info_text.y + @info_text.size + half_spacer,
+                                     size: font_size, color: 'green')
+      @separator  = horizontal_separator(position: texts_height, length: window_width)
     end
 
     def show
@@ -41,15 +51,10 @@ module Sudoku
 
     private
 
-    def board(x:, y:, size:)
-      numbers            = (1..9).to_a
-      # empty_matrix       = (0..8).map { |i| numbers.map { nil } }
-      # full_matrix        = (0..8).map { |i| numbers.rotate(i - 1) }
-      alternating_matrix = (0..8).map do |i|
-        numbers.rotate(i).each_with_index.map { |num, j| num if (i + j).even? }
-      end
+    attr_reader :full_spacer, :half_spacer, :font_size, :texts_height, :window_width, :window_height
 
-      Board.new(matrix: alternating_matrix,
+    def board(grid, x:, y:, size:)
+      Board.new(matrix: grid.matrix,
                 x: x, y: y,
                 width: size, height: size,
                 border_color: 'green', output: @event_output)

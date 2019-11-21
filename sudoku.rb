@@ -1,3 +1,10 @@
-require_relative 'lib/ui'
+$LOAD_PATH.unshift './lib'
 
-Sudoku::UI.new.show
+require 'client'
+require 'ui'
+
+base_url = 'http://localhost:9292'
+client   = Sudoku::Client.new(base_url)
+game     = client.create_game
+
+Sudoku::UI.new(game.puzzle.grid).show
