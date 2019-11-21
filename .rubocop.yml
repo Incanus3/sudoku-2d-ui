@@ -24,3 +24,6 @@ Style/Documentation:
 
 Style/FrozenStringLiteralComment:
   Enabled: false
+
+AllCops:
+  TargetRubyVersion: 2.7

@@ -5,13 +5,12 @@ module Sudoku
     class Board
       attr_reader :x, :y, :width, :height
 
-      def initialize(matrix:, x:, y:, width:, height:, border_color: 'white', output: $stdout)
+      def initialize(matrix:, x:, y:, width:, height:, border_color: 'white')
         @matrix = matrix
         @x      = x
         @y      = y
         @width  = width
         @height = height
-        @output = output
 
         common_params = {
           x: x, y: y,
@@ -74,10 +73,8 @@ module Sudoku
         @main_border.contains?(coords)
       end
 
-      def handle_event(event)
-        cell = @cell_borders_grid.cell_for(event)
-
-        @output << "you clicked #{cell}"
+      def cell_for(event)
+        @cell_borders_grid.cell_for(event)
       end
     end
   end

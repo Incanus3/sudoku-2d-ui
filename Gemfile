@@ -1,9 +1,11 @@
 source 'https://rubygems.org'
 
-gem 'ruby2d'
 gem 'faraday'
+gem 'ruby2d'
 
 group :development do
   gem 'guard'
+  gem 'guard-bundler'
+  gem 'guard-rubocop'
   gem 'rubocop'
 end
