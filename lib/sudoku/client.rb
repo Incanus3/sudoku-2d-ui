@@ -1,6 +1,6 @@
 require 'json'
 require 'faraday'
-require 'core'
+require 'sudoku/core'
 
 module Sudoku
   class Client
