@@ -1,3 +1,10 @@
+Layout/EmptyLines:
+  Enabled: false
+
+Layout/EmptyLineBetweenDefs:
+  AllowAdjacentOneLineDefs: true
+  NumberOfEmptyLines: [1, 2]
+
 Layout/SpaceInsideArrayLiteralBrackets:
   Enabled: false
 
