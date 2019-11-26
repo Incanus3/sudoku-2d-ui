@@ -22,6 +22,8 @@ module Sudoku
       @event_output = Output.for(widget: @event_text)
 
       @board = board(grid, x: margin, y: texts_height + margin, size: board_size)
+
+      init_buttons(x: margin, y: @board.y + @board.height + margin, width: buttons_height, height: buttons_height)
     end
 
     def show
@@ -32,15 +34,17 @@ module Sudoku
 
     private
 
-    attr_reader :full_spacer, :half_spacer, :font_size, :texts_height, :window_width, :window_height
+    attr_reader :full_spacer, :half_spacer, :font_size, :texts_height, :buttons_height,
+    attr_reader :window_width, :window_height
 
     def init_sizes(board_size, margin)
-      @full_spacer   = margin / 5
-      @half_spacer   = margin / 10
-      @font_size     = full_spacer * 1.5
-      @texts_height  = 3 * font_size + 4 * full_spacer
-      @window_width  = board_size + 2 * margin
-      @window_height = board_size + 2 * margin + texts_height
+      @full_spacer    = margin / 5
+      @half_spacer    = margin / 10
+      @font_size      = full_spacer * 1.5
+      @texts_height   = 3 * font_size + 4 * full_spacer
+      @buttons_height = margin
+      @window_width   = board_size + 2 * margin
+      @window_height  = board_size + 3 * margin + texts_height + buttons_height
     end
 
     def init_window
@@ -58,6 +62,28 @@ module Sudoku
                                      y: @state_text.y + @state_text.size + half_spacer,
                                      size: font_size, color: 'green')
       @separator  = horizontal_separator(position: texts_height, length: window_width)
+    end
+
+    def init_buttons(x:, y:, width:, height:)
+      @buttons = (0..8).map do |i|
+        button(text: i + 1, position: i, base_x: x, y: y, width: width, height: height)
+      end
+    end
+
+    def button(text:, position:, base_x:, y:, width:, height:)
+      spacer = 2 * full_spacer
+
+      # text size and offsets are duplicated from GridWithChars - extract this
+      text_size     = 3.0 / 4   * height
+      text_x_offset = 1.0 / 3.5 * height
+      text_y_offset = 1.0 / 12  * height
+
+      # extract this into a Button shape and make it clickable
+      Shapes::Rectangle.new(x: base_x + position * (width + spacer), y: y,
+                            width: width, height: height, border_color: 'green')
+      Shapes::Text.new(text,
+                       x: base_x + position * (width + spacer) + text_x_offset, y: y + text_y_offset,
+                       size: text_size, color: 'green')
     end
 
     def board(grid, x:, y:, size:)
