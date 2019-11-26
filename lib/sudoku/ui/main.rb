@@ -3,6 +3,7 @@ require_relative 'shapes'
 require_relative 'output'
 require_relative 'states'
 require_relative 'board'
+require_relative 'buttons'
 
 # TODO: implement keyboard interaction
 
@@ -51,7 +52,7 @@ module Sudoku
       # these have a lot of interdependencies, requiring initialize to call them in a specific order
       # TODO: try to think of a way to decouple these
       # - the simplest solution of course would be to return all the variables and pass them to the
-      #   later methods, but that seems like too much noise and kinda kills the advantages of classes
+      #   later methods, but that seems like too much noise and kinda kills the advantage of classes
       # - another think that might help would be to define a structure (or several) that would hold
       #   all the variables, that need to be passed around, then
       #   - we'd (hopefully) have the values coherently grouped together
@@ -86,29 +87,14 @@ module Sudoku
       end
 
       def init_buttons(x:, y:, width:, height:)
-        @buttons = (0..8).map do |i|
-          make_button(text: i + 1, position: i, base_x: x, y: y, width: width, height: height)
+        spacer = 2 * full_spacer
+
+        @buttons = (0..8).map do |index|
+          Sudoku::UI::Button.new(text: index + 1, x: x + index * (width + spacer), y: y,
+                                 width: width, height: height)
         end
       end
 
-
-      def make_button(text:, position:, base_x:, y:, width:, height:)
-        spacer = 2 * full_spacer
-
-        # text size and offsets are duplicated from GridWithChars
-        # TODO: extract this
-        text_size     = 3.0 / 4   * height
-        text_x_offset = 1.0 / 3.5 * height
-        text_y_offset = 1.0 / 12  * height
-
-        # TODO: extract this into a Button shape and make it clickable
-        Shapes::Rectangle.new(x: base_x + position * (width + spacer), y: y,
-                              width: width, height: height, border_color: 'green')
-        Shapes::Text.new(text,
-                         x: base_x + position * (width + spacer) + text_x_offset,
-                         y: y + text_y_offset,
-                         size: text_size, color: 'green')
-      end
 
       def make_board(grid, x:, y:, size:)
         Board.new(matrix: grid.matrix,
