@@ -1,5 +1,5 @@
 module Sudoku
-  class UI
+  module UI
     module States
       class State
       end

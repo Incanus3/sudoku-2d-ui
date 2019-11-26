@@ -1,7 +1,7 @@
 require_relative 'shapes'
 
 module Sudoku
-  class UI
+  module UI
     class Board
       attr_reader :x, :y, :width, :height
 

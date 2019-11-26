@@ -1,5 +1,5 @@
 module Sudoku
-  class UI
+  module UI
     class Output
       def self.for(widget:)
         new(widget)
