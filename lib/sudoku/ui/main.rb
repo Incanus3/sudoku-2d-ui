@@ -34,8 +34,19 @@ module Sudoku
 
     private
 
-    attr_reader :full_spacer, :half_spacer, :font_size, :texts_height, :buttons_height,
+    attr_reader :full_spacer, :half_spacer, :font_size, :texts_height, :buttons_height
     attr_reader :window_width, :window_height
+
+
+    # these have a lot of interdependencies, requiring initialize to call them in a specific order
+    # TODO: try to think of a way to decouple these
+    # - the simplest solution of course would be to return all the variables and pass them to the
+    #   later methods, but that seems like too much noise and kind of kills the advantages of classes
+    # - another think that might help would be to define a structure (or several) that would hold
+    #   all the variables, that need to be passed around, then
+    #   - we'd (hopefully) have the values coherently grouped together
+    #   - could more easily pass them around
+    #   - could even remove instance variable references from init methods
 
     def init_sizes(board_size, margin)
       @full_spacer    = margin / 5
@@ -70,15 +81,17 @@ module Sudoku
       end
     end
 
+
     def button(text:, position:, base_x:, y:, width:, height:)
       spacer = 2 * full_spacer
 
-      # text size and offsets are duplicated from GridWithChars - extract this
+      # text size and offsets are duplicated from GridWithChars
+      # TODO: extract this
       text_size     = 3.0 / 4   * height
       text_x_offset = 1.0 / 3.5 * height
       text_y_offset = 1.0 / 12  * height
 
-      # extract this into a Button shape and make it clickable
+      # TODO: extract this into a Button shape and make it clickable
       Shapes::Rectangle.new(x: base_x + position * (width + spacer), y: y,
                             width: width, height: height, border_color: 'green')
       Shapes::Text.new(text,
@@ -98,6 +111,7 @@ module Sudoku
                        width: width, color: color)
     end
 
+
     def info_text
       "time: #{Time.now.strftime('%T')}, tick: #{@tick}"
     end
@@ -108,6 +122,12 @@ module Sudoku
       when :cell_selected              then "you selected cell #{@selected_cell}"
       end
     end
+
+
+    # the state and related values (e.g. selected cell) should be held together and we shouldn't
+    # keep state variables that are irrelevant for given state
+    # TODO: make a class for each state (inheriting from some common superclass) with instances
+    # holding only the relevant data
 
     def set_state(new_state)
       @state = new_state
@@ -123,6 +143,7 @@ module Sudoku
       @selected_cell = nil
       set_state(:waiting_for_cell_selection)
     end
+
 
     def set_event_handlers
       @window.update do
