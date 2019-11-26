@@ -3,9 +3,11 @@ require_relative 'shapes'
 module Sudoku
   module UI
     class Board
+      DEFAULT_BORDER_COLOR = 'green'.freeze
+
       attr_reader :x, :y, :width, :height
 
-      def initialize(matrix:, x:, y:, width:, height:, border_color: 'white')
+      def initialize(matrix:, x:, y:, width:, height:, border_color: DEFAULT_BORDER_COLOR)
         @matrix = matrix
         @x      = x
         @y      = y
