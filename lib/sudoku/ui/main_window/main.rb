@@ -1,47 +1,13 @@
 require 'ruby2d'
-require_relative 'shapes'
+require 'sudoku/ui/shapes'
+require 'sudoku/ui/buttons'
+require 'sudoku/ui/board'
 require_relative 'states'
-require_relative 'board'
-require_relative 'buttons'
-
-# TODO: implement keyboard interaction
+require_relative 'layout'
 
 module Sudoku
   module UI
     class MainWindow
-      class Layout
-        attr_reader :board_size, :font_size
-        attr_reader :text_spacer, :button_spacer
-        attr_reader :texts_height, :buttons_height
-        attr_reader :info_text_y_offset, :state_text_y_offset, :event_text_y_offset
-        attr_reader :board_x_offset, :board_y_offset, :buttons_x_offset, :buttons_y_offset
-        attr_reader :window_width, :window_height
-
-        def initialize(board_size, margin)
-          @board_size          = board_size
-          @margin              = margin
-          @font_size           = 0.3 * margin
-
-          @text_spacer         = 2.0 / 3 * @font_size
-          @half_spacer         = @text_spacer / 2
-          @button_spacer       = 2 * @text_spacer
-
-          @texts_height        = 3 * @font_size + 4 * @text_spacer
-          @buttons_height      = margin
-
-          @info_text_y_offset  = @text_spacer
-          @state_text_y_offset = @info_text_y_offset  + @font_size + @half_spacer
-          @event_text_y_offset = @state_text_y_offset + @font_size + @half_spacer
-          @board_x_offset      = margin
-          @board_y_offset      = @texts_height + margin
-          @buttons_x_offset    = margin
-          @buttons_y_offset    = @board_y_offset + board_size + margin
-
-          @window_width        = board_size + 2 * margin
-          @window_height       = @buttons_y_offset + @buttons_height + margin
-        end
-      end
-
       DEFAULT_BOARD_SIZE = 600
       BOARD_MARGIN_RATIO = 15
 
@@ -56,14 +22,14 @@ module Sudoku
                             x: layout.board_x_offset, y: layout.board_y_offset,
                             width: layout.board_size, height: layout.board_size)
 
-        init_widgets(layout, info_text(@tick), state_text(@state))
+        init_widgets(layout, @state)
       end
 
-      private def init_widgets(layout, info_text, state_text, top_texts_color: 'green')
-        @info_text_widget  = Shapes::Text.new(info_text,
+      private def init_widgets(layout, state, top_texts_color: 'green')
+        @info_text_widget  = Shapes::Text.new('',
                                               x: layout.text_spacer, y: layout.info_text_y_offset,
                                               size: layout.font_size, color: top_texts_color)
-        @state_text_widget = Shapes::Text.new(state_text,
+        @state_text_widget = Shapes::Text.new(state.text,
                                               x: layout.text_spacer, y: layout.state_text_y_offset,
                                               size: layout.font_size, color: top_texts_color)
         @event_text_widget = Shapes::Text.new('',
@@ -88,7 +54,7 @@ module Sudoku
 
       def state=(new_state)
         @state = new_state
-        state_text_widget.text = state_text(new_state)
+        state_text_widget.text = new_state.text
       end
 
 
@@ -111,22 +77,10 @@ module Sudoku
       end
 
 
-      def info_text(tick)
-        "time: #{Time.now.strftime('%T')}, tick: #{tick}"
-      end
-
-      def state_text(state)
-        case state
-        when States::WaitingForCellSelection then 'select cell'
-        when States::CellSelected            then "you selected cell #{state.cell}"
-        end
-      end
-
-
       def set_event_handlers
         window.update do
           self.tick = tick + 1
-          info_text_widget.text = info_text(tick)
+          info_text_widget.text = "time: #{Time.now.strftime('%T')}, tick: #{tick}"
         end
 
         window.on(:mouse_down, &method(:handle_click))

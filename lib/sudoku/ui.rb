@@ -1,1 +1,1 @@
-require_relative 'ui/main'
+require_relative 'ui/main_window'
