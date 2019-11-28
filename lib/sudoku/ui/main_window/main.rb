@@ -64,7 +64,7 @@ module Sudoku
 
         (0..8).map do |index|
           Sudoku::UI::Button.new(
-            text: index + 1,
+            data: index + 1,
             x: layout.buttons_x_offset + index * (width + layout.button_spacer),
             y: layout.buttons_y_offset,
             width: width, height: layout.buttons_height
@@ -89,24 +89,42 @@ module Sudoku
       end
 
       def handle_click(event)
-        event_text_widget.text = "clicked x: #{event.x}, y: #{event.y}"
-
-        self.state =
-          if board.contains?(event)
-            cell = board.cell_for(event)
-
-            if grid.cell_filled?(cell)
-              States::FilledCellSelected.new(cell)
-            else
-              States::EmptyCellSelected.new(cell)
-            end
-          else
-            States::WaitingForCellSelection.new
-          end
+        self.state = new_state_for(state, event)
       end
 
       def handle_key(event)
         exit if event.key == 'q'
+      end
+
+
+      def new_state_for(current_state, event)
+        if board.contains?(event)
+          cell = board.cell_for(event)
+
+          if grid.cell_filled?(cell)
+            States::FilledCellSelected.new(cell)
+          else
+            States::EmptyCellSelected.new(cell)
+          end
+        elsif state.is_a?(States::EmptyCellSelected)
+          clicked_button = @buttons.find { |button| button.contains?(event) }
+
+          if clicked_button
+            fill_cell(current_state.cell, clicked_button.data)
+
+            States::WaitingForCellSelection.new
+          else
+            current_state
+          end
+        else
+          current_state
+        end
+      end
+
+
+      def fill_cell(cell, number)
+        event_text_widget.text =
+          "you asked to fill cell #{cell} with #{number}. this is not yet implemented."
       end
     end
   end

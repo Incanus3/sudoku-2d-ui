@@ -26,7 +26,7 @@ module Sudoku
           end
 
           def text
-            "you selected cell #{cell}"
+            "cell #{cell} is selected"
           end
         end
 

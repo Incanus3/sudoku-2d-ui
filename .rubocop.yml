@@ -20,6 +20,9 @@ Metrics/MethodLength:
 Metrics/ParameterLists:
   CountKeywordArgs: false
 
+Metrics/PerceivedComplexity:
+  Max: 10
+
 Naming/UncommunicativeMethodParamName:
   AllowedNames: ['x', 'y', 'z', 'id']
 
