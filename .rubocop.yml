@@ -29,6 +29,9 @@ Style/AccessModifierDeclarations:
 Style/Documentation:
   Enabled: false
 
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
 Style/FrozenStringLiteralComment:
   Enabled: false
 

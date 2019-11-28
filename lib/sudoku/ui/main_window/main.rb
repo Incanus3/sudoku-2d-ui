@@ -15,6 +15,7 @@ module Sudoku
         layout = self.class::Layout.new(board_size, margin)
 
         @tick   = 0
+        @grid   = grid
         @state  = States::WaitingForCellSelection.new
         @window = Ruby2D::Window.new(title: 'sudoku',
                                      width: layout.window_width, height: layout.window_height)
@@ -49,7 +50,7 @@ module Sudoku
       private
 
       attr_accessor :tick
-      attr_reader :state, :window, :board
+      attr_reader :grid, :state, :window, :board
       attr_reader :info_text_widget, :state_text_widget, :event_text_widget
 
       def state=(new_state)
@@ -91,7 +92,7 @@ module Sudoku
         event_text_widget.text = "clicked x: #{event.x}, y: #{event.y}"
 
         self.state = if board.contains?(event)
-                     then States::CellSelected.new(board.cell_for(event))
+                     then States::CellSelected.new(board.cell_for(event), grid)
                      else States::WaitingForCellSelection.new
                      end
       end
