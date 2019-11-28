@@ -19,22 +19,26 @@ module Sudoku
         end
 
         class CellSelected < State
-          attr_reader :cell, :grid
+          attr_reader :cell
 
-          def initialize(cell, grid)
+          def initialize(cell)
             @cell = cell
-            @grid = grid
           end
 
           def text
-            additional_text =
-              if grid.cell_filled?(cell)
-                'this cell is already filled'
-              else
-                'select number to fill in'
-              end
+            "you selected cell #{cell}"
+          end
+        end
 
-            "you selected cell #{cell}, #{additional_text}"
+        class EmptyCellSelected < CellSelected
+          def text
+            "#{super}, select number to fill in"
+          end
+        end
+
+        class FilledCellSelected < CellSelected
+          def text
+            "#{super}, this cell is already filled"
           end
         end
       end

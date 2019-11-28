@@ -91,10 +91,18 @@ module Sudoku
       def handle_click(event)
         event_text_widget.text = "clicked x: #{event.x}, y: #{event.y}"
 
-        self.state = if board.contains?(event)
-                     then States::CellSelected.new(board.cell_for(event), grid)
-                     else States::WaitingForCellSelection.new
-                     end
+        self.state =
+          if board.contains?(event)
+            cell = board.cell_for(event)
+
+            if grid.cell_filled?(cell)
+              States::FilledCellSelected.new(cell)
+            else
+              States::EmptyCellSelected.new(cell)
+            end
+          else
+            States::WaitingForCellSelection.new
+          end
       end
 
       def handle_key(event)
