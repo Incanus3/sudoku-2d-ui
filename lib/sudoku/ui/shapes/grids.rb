@@ -42,7 +42,14 @@ module Shapes
       @children.each(&:remove)
     end
 
+    def contains?(coords)
+      # FIXME: this is duplicated in Rectangle
+      @x <= coords.x && coords.x <= @x + @width && @y <= coords.y && coords.y <= @y + @height
+    end
+
     def cell_for(coords)
+      return unless contains?(coords)
+
       row    = ((coords.y - @y) / @cell_height + 1).to_i
       column = ((coords.x - @x) / @cell_width  + 1).to_i
 
