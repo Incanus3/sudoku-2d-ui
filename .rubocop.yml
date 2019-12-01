@@ -1,3 +1,6 @@
+Layout/IndentHeredoc:
+  Enabled: false
+
 Layout/EmptyLines:
   Enabled: false
 
@@ -28,6 +31,9 @@ Naming/UncommunicativeMethodParamName:
 
 Style/AccessModifierDeclarations:
   Enabled: false
+
+Style/BracesAroundHashParameters:
+  EnforcedStyle: context_dependent
 
 Style/Documentation:
   Enabled: false

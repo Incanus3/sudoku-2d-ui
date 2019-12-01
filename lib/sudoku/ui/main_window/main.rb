@@ -11,15 +11,17 @@ module Sudoku
       DEFAULT_BOARD_SIZE = 600
       BOARD_MARGIN_RATIO = 15
 
-      def initialize(grid, board_size: DEFAULT_BOARD_SIZE, margin: board_size / BOARD_MARGIN_RATIO)
+      def initialize(client,
+                     board_size: DEFAULT_BOARD_SIZE, margin: board_size / BOARD_MARGIN_RATIO)
         layout = self.class::Layout.new(board_size, margin)
 
         @tick   = 0
-        @grid   = grid
+        @client = client
+        @game   = client.create_game
         @state  = States::WaitingForCellSelection.new
         @window = Ruby2D::Window.new(title: 'sudoku',
                                      width: layout.window_width, height: layout.window_height)
-        @board  = Board.new(matrix: grid.matrix,
+        @board  = Board.new(grid: @game.puzzle.grid,
                             x: layout.board_x_offset, y: layout.board_y_offset,
                             width: layout.board_size, height: layout.board_size)
 
@@ -50,7 +52,7 @@ module Sudoku
       private
 
       attr_accessor :tick
-      attr_reader :grid, :state, :window, :board
+      attr_reader :client, :game, :state, :window, :board
       attr_reader :info_text_widget, :state_text_widget, :event_text_widget
 
       def state=(new_state)
@@ -101,7 +103,7 @@ module Sudoku
         if board.contains?(event)
           cell = board.cell_for(event)
 
-          if grid.cell_filled?(cell)
+          if board.cell_filled?(cell)
             States::FilledCellSelected.new(cell)
           else
             States::EmptyCellSelected.new(cell)
@@ -125,6 +127,8 @@ module Sudoku
       def fill_cell(cell, number)
         event_text_widget.text =
           "you asked to fill cell #{cell} with #{number}. this is not yet implemented."
+
+        client.fill_cell(game, cell, number)
       end
     end
   end

@@ -7,8 +7,8 @@ module Sudoku
 
       attr_reader :x, :y, :width, :height
 
-      def initialize(matrix:, x:, y:, width:, height:, border_color: DEFAULT_BORDER_COLOR)
-        @matrix = matrix
+      def initialize(grid:, x:, y:, width:, height:, border_color: DEFAULT_BORDER_COLOR)
+        @grid   = grid
         @x      = x
         @y      = y
         @width  = width
@@ -45,7 +45,7 @@ module Sudoku
         @final_numbers_grid = Shapes::GridWithChars.new(
           **common_params,
           rows: 9, columns: 9,
-          chars_matrix: @matrix
+          chars_matrix: @grid.matrix
         )
 
         full_matrix  = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
@@ -77,6 +77,10 @@ module Sudoku
 
       def cell_for(event)
         @cell_borders_grid.cell_for(event)
+      end
+
+      def cell_filled?(cell)
+        @grid.cell_filled?(cell)
       end
     end
   end
