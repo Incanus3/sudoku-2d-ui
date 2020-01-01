@@ -8,7 +8,11 @@ require_relative 'layout'
 module Sudoku
   module UI
     class MainWindow
+      include Dry::Monads[:result]
+
       DEFAULT_BOARD_SIZE = 600
+      DEFAULT_TEXT_COLOR = 'green'.freeze
+      ERROR_TEXT_COLOR   = 'red'.freeze
       BOARD_MARGIN_RATIO = 15
 
       def initialize(client,
@@ -17,18 +21,21 @@ module Sudoku
 
         @tick   = 0
         @client = client
-        @game   = client.create_game
-        @state  = States::WaitingForCellSelection.new
-        @window = Ruby2D::Window.new(title: 'sudoku',
-                                     width: layout.window_width, height: layout.window_height)
-        @board  = Board.new(grid: @game.puzzle.grid,
-                            x: layout.board_x_offset, y: layout.board_y_offset,
-                            width: layout.board_size, height: layout.board_size)
 
-        init_widgets(layout, @state)
+        client.create_game.bind do |game|
+          @game   = game
+          @state  = States::WaitingForCellSelection.new
+          @window = Ruby2D::Window.new(title: 'sudoku',
+                                       width: layout.window_width, height: layout.window_height)
+          @board  = Board.new(grid: game.puzzle.grid,
+                              x: layout.board_x_offset, y: layout.board_y_offset,
+                              width: layout.board_size, height: layout.board_size)
+
+          init_widgets(layout, @state)
+        end
       end
 
-      private def init_widgets(layout, state, top_texts_color: 'green')
+      private def init_widgets(layout, state, top_texts_color: DEFAULT_TEXT_COLOR)
         @info_text_widget  = Shapes::Text.new('',
                                               x: layout.text_spacer, y: layout.info_text_y_offset,
                                               size: layout.font_size, color: top_texts_color)
@@ -60,6 +67,16 @@ module Sudoku
         state_text_widget.text = new_state.text
       end
 
+      def error=(error)
+        event_text_widget.text  = error
+        event_text_widget.color = ERROR_TEXT_COLOR
+      end
+
+      def clear_error
+        event_text_widget.text  = ''
+        event_text_widget.color = DEFAULT_TEXT_COLOR
+      end
+
 
       def buttons(layout)
         width = layout.buttons_height
@@ -74,7 +91,7 @@ module Sudoku
         end
       end
 
-      def horizontal_separator(position:, length:, offset: 0, width: 1, color: 'green')
+      def horizontal_separator(position:, length:, offset: 0, width: 1, color: DEFAULT_TEXT_COLOR)
         Shapes::Line.new(x1: offset, y1: position, x2: offset + length, y2: position,
                          width: width, color: color)
       end
@@ -91,6 +108,8 @@ module Sudoku
       end
 
       def handle_click(event)
+        clear_error
+
         self.state = new_state_for(state, board, event)
       end
 
@@ -125,9 +144,10 @@ module Sudoku
 
 
       def fill_cell(cell, number)
-        # TODO: handle bad requests
-        updated_game = client.fill_cell(game, cell, number)
-        board.fill_cell(cell, number)
+        case client.fill_cell(game, cell, number)
+        in Success        then board.fill_cell(cell, number)
+        in Failure(error) then self.error = error
+        end
       end
     end
   end

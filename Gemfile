@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'dry-monads'
 gem 'faraday'
 gem 'ruby2d'
 

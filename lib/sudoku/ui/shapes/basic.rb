@@ -1,3 +1,4 @@
+require 'delegate'
 require 'ruby2d'
 
 module Shapes

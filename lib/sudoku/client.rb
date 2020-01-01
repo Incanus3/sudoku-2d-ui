@@ -1,9 +1,12 @@
 require 'json'
 require 'faraday'
+require 'dry-monads'
 require 'sudoku/core'
 
 module Sudoku
   class Client
+    include Dry::Monads[:result]
+
     attr_reader :base_url
 
     def initialize(base_url)
@@ -15,14 +18,13 @@ module Sudoku
       data     = grid ? { grid: grid } : nil
       response = request(:post, '/games', data, headers)
 
-      game_from(response)
+      Success(game_from(response))
     end
 
     def get_game(id)
       response = request(:get, "/games/#{id}")
-      matrix   = JSON.parse(response.body)['grid']
 
-      Sudoku::Game.new(id, Sudoku::Puzzle.new(matrix))
+      Success(game_from(response))
     end
 
     def fill_cell(game, cell, number)
@@ -31,7 +33,10 @@ module Sudoku
       response = request(:patch, "/games/#{game.id}/fill_cell", data,
                          'Content-Type' => 'application/json')
 
-      game_from(response)
+      case response.status
+      when 200 then Success(game_from(response))
+      when 400 then Failure(JSON.parse(response.body)['error'])
+      end
     end
 
     private
