@@ -10,11 +10,12 @@ module Sudoku
       @base_url = base_url
     end
 
-    def create_game
-      response = request(:post, '/games')
-      id       = JSON.parse(response.body)['id']
+    def create_game(grid = nil)
+      headers  = grid ? { 'Content-Type' => 'application/json' } : {}
+      data     = grid ? { grid: grid } : nil
+      response = request(:post, '/games', data, headers)
 
-      get_game(id)
+      game_from(response)
     end
 
     def get_game(id)
@@ -27,8 +28,10 @@ module Sudoku
     def fill_cell(game, cell, number)
       data = { row: cell.row, column: cell.column, number: number }
 
-      request(:patch, "/games/#{game.id}/fill_cell", data,
-              'Content-Type' => 'application/json')
+      response = request(:patch, "/games/#{game.id}/fill_cell", data,
+                         'Content-Type' => 'application/json')
+
+      game_from(response)
     end
 
     private
@@ -53,6 +56,12 @@ module Sudoku
       RESPONSE
 
       response
+    end
+
+    def game_from(response)
+      data = JSON.parse(response.body)
+
+      Sudoku::Game.new(data['id'], Sudoku::Puzzle.new(data['grid']))
     end
   end
 end

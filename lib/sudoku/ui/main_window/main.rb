@@ -51,8 +51,8 @@ module Sudoku
 
       private
 
-      attr_accessor :tick
-      attr_reader :client, :game, :state, :window, :board
+      attr_accessor :tick, :game
+      attr_reader :client, :state, :window, :board
       attr_reader :info_text_widget, :state_text_widget, :event_text_widget
 
       def state=(new_state)
@@ -91,7 +91,7 @@ module Sudoku
       end
 
       def handle_click(event)
-        self.state = new_state_for(state, event)
+        self.state = new_state_for(state, board, event)
       end
 
       def handle_key(event)
@@ -99,7 +99,7 @@ module Sudoku
       end
 
 
-      def new_state_for(current_state, event)
+      def new_state_for(current_state, board, event)
         if board.contains?(event)
           cell = board.cell_for(event)
 
@@ -108,7 +108,7 @@ module Sudoku
           else
             States::EmptyCellSelected.new(cell)
           end
-        elsif state.is_a?(States::EmptyCellSelected)
+        elsif current_state.is_a?(States::EmptyCellSelected)
           clicked_button = @buttons.find { |button| button.contains?(event) }
 
           if clicked_button
@@ -125,10 +125,9 @@ module Sudoku
 
 
       def fill_cell(cell, number)
-        event_text_widget.text =
-          "you asked to fill cell #{cell} with #{number}. this is not yet implemented."
-
-        client.fill_cell(game, cell, number)
+        # TODO: handle bad requests
+        updated_game = client.fill_cell(game, cell, number)
+        board.fill_cell(cell, number)
       end
     end
   end

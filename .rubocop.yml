@@ -1,4 +1,4 @@
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   Enabled: false
 
 Layout/EmptyLines:
@@ -26,7 +26,7 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Max: 10
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   AllowedNames: ['x', 'y', 'z', 'id']
 
 Style/AccessModifierDeclarations:
