@@ -47,7 +47,9 @@ module Sudoku
         )
 
         @note_numbers_grid = Shapes::Grid.new(**common_params, rows: 9, columns: 9) do |cell|
-          unless grid.cell_filled?(cell)
+          # unless grid.cell_filled?(cell)
+          # for testing purposes - the server returns a grid completely filled with note numbers
+          if false
             Shapes::GridWithChars.new(
               x: cell.x + 1.0 / 20 * cell.width, y: cell.y + 1.0 / 20 * cell.height,
               width: 9.0 / 10 * cell.width, height: 9.0 / 10 * cell.height,

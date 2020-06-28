@@ -60,6 +60,10 @@ Naming/MethodParameterName:
 Style/AccessModifierDeclarations:
   Enabled: false
 
+Style/BlockDelimiters:
+  EnforcedStyle: semantic
+  AllowBracesOnProceduralOneLiners: true
+
 Style/ConstantVisibility:
   Enabled: false
 
@@ -81,6 +85,9 @@ Style/EmptyMethod:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+Style/InlineComment:
+  Enabled: false
+
 Style/MethodCallWithArgsParentheses:
   IgnoredMethods:
     - gem
@@ -93,6 +100,9 @@ Style/MethodCallWithArgsParentheses:
 
 Style/MissingElse:
   EnforcedStyle: case
+
+Style/RaiseArgs:
+  EnforcedStyle: compact
 
 Style/RedundantSelf:
   Enabled: false

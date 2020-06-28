@@ -7,6 +7,16 @@ module Sudoku
   class Client
     include Dry::Monads[:result]
 
+    class UnexpectedResponse < RuntimeError
+      attr_reader :response
+
+      def initialize(response)
+        super('Received unexpected response from server')
+
+        @response = response
+      end
+    end
+
     attr_reader :base_url
 
     def initialize(base_url)
@@ -15,16 +25,17 @@ module Sudoku
 
     def create_game(grid = nil)
       headers  = grid ? { 'Content-Type' => 'application/json' } : {}
-      data     = grid ? { grid: grid } : nil
+      data     = grid ? { grid: grid }                           : nil
+
       response = request(:post, '/games', data, headers)
 
-      Success(game_from(response))
+      result_from(response)
     end
 
     def get_game(id)
       response = request(:get, "/games/#{id}")
 
-      Success(game_from(response))
+      result_from(response)
     end
 
     def fill_cell(game, cell, number)
@@ -33,10 +44,7 @@ module Sudoku
       response = request(:patch, "/games/#{game.id}/fill_cell", data,
                          'Content-Type' => 'application/json')
 
-      case response.status
-      when 200 then Success(game_from(response))
-      when 400 then Failure(JSON.parse(response.body)['error'])
-      end
+      result_from(response)
     end
 
     private
@@ -52,7 +60,7 @@ module Sudoku
           headers: #{headers}
       REQUEST
 
-      response = Faraday.send(method.downcase, url, data && JSON.dump(data), headers)
+      response = Faraday.public_send(method.downcase, url, data && JSON.dump(data), headers)
 
       puts <<~RESPONSE
         response:
@@ -63,10 +71,18 @@ module Sudoku
       response
     end
 
-    def game_from(response)
-      data = JSON.parse(response.body)
+    def result_from(response)
+      case response.status
+      when 200, 201
+        data = JSON.parse(response.body)
+        id, grid, finished = data.values_at('id', 'grid', 'finished')
 
-      Sudoku::Game.new(data['id'], Sudoku::Puzzle.new(data['grid']))
+        Success([Sudoku::Game.new(id, grid), finished])
+      when 400
+        Failure(JSON.parse(response.body)['error'])
+      else
+        raise UnexpectedResponse.new(response)
+      end
     end
   end
 end

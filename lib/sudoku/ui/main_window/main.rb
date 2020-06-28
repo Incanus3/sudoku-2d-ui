@@ -1,7 +1,10 @@
 require 'ruby2d'
+require 'dry-monads'
+
 require 'sudoku/ui/shapes'
 require 'sudoku/ui/buttons'
 require 'sudoku/ui/board'
+
 require_relative 'states'
 require_relative 'layout'
 
@@ -22,12 +25,12 @@ module Sudoku
         @tick   = 0
         @client = client
 
-        client.create_game.bind do |game|
+        client.create_game.bind do |game, _|
           @game   = game
           @state  = States::WaitingForCellSelection.new
           @window = Ruby2D::Window.new(title: 'sudoku',
                                        width: layout.window_width, height: layout.window_height)
-          @board  = Board.new(grid: game.puzzle.grid,
+          @board  = Board.new(grid: game.grid,
                               x: layout.board_x_offset, y: layout.board_y_offset,
                               width: layout.board_size, height: layout.board_size)
 
@@ -81,18 +84,20 @@ module Sudoku
       def buttons(layout)
         width = layout.buttons_height
 
-        (0..8).map do |index|
+        (0..8).map { |index|
           Sudoku::UI::Button.new(
             data: index + 1,
             x: layout.buttons_x_offset + index * (width + layout.button_spacer),
             y: layout.buttons_y_offset,
-            width: width, height: layout.buttons_height
+            width: width,
+            height: layout.buttons_height
           )
-        end
+        }
       end
 
       def horizontal_separator(position:, length:, offset: 0, width: 1, color: DEFAULT_TEXT_COLOR)
-        Shapes::Line.new(x1: offset, y1: position, x2: offset + length, y2: position,
+        Shapes::Line.new(x1: offset,          y1: position,
+                         x2: offset + length, y2: position,
                          width: width, color: color)
       end
 
@@ -118,7 +123,18 @@ module Sudoku
       end
 
 
+      # this method
+      # - is too long
+      # - is too complex
+      # - does too much
+      #   - it decides what the new state should be, given the current state and event
+      #     - this is its intended purpose
+      #   - has a side effect - calls fill_cell, which
+      #     - makes request to backend
+      #     - mutates board on success
       def new_state_for(current_state, board, event)
+        return current_state if current_state.is_a?(States::Victory)
+
         if board.contains?(event)
           cell = board.cell_for(event)
 
@@ -128,12 +144,13 @@ module Sudoku
             States::EmptyCellSelected.new(cell)
           end
         elsif current_state.is_a?(States::EmptyCellSelected)
-          clicked_button = @buttons.find { |button| button.contains?(event) }
-
-          if clicked_button
-            fill_cell(current_state.cell, clicked_button.data)
-
-            States::WaitingForCellSelection.new
+          if (clicked_button = @buttons.find { |button| button.contains?(event) })
+            case fill_cell(current_state.cell, clicked_button.data)
+            in Success(_, finished) then
+              finished ? States::Victory.new : States::WaitingForCellSelection.new
+            in Failure(_)
+              States::WaitingForCellSelection.new
+            end
           else
             current_state
           end
@@ -144,10 +161,12 @@ module Sudoku
 
 
       def fill_cell(cell, number)
-        case client.fill_cell(game, cell, number)
+        case result = client.fill_cell(game, cell, number)
         in Success        then board.fill_cell(cell, number)
         in Failure(error) then self.error = error
         end
+
+        result
       end
     end
   end

@@ -15,11 +15,15 @@ module Sudoku
     end
 
     def cell_value(cell)
-      matrix[cell.row - 1][cell.column - 1]
+      self.matrix[cell.row - 1][cell.column - 1]
     end
 
     def fill_cell(cell, number)
-      matrix[cell.row - 1][cell.column - 1] = number
+      self.matrix[cell.row - 1][cell.column - 1] = number
+    end
+
+    def completely_filled?
+      self.matrix.flatten.all?
     end
   end
 end

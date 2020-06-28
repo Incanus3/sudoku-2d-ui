@@ -41,6 +41,12 @@ module Sudoku
             "#{super}, this cell is already filled"
           end
         end
+
+        class Victory < State
+          def text
+            'You won!'
+          end
+        end
       end
     end
   end
