@@ -5,8 +5,9 @@ require 'sudoku/ui/shapes'
 require 'sudoku/ui/buttons'
 require 'sudoku/ui/board'
 
-require_relative 'states'
 require_relative 'layout'
+require_relative 'events'
+require_relative 'states'
 
 module Sudoku
   module UI
@@ -108,52 +109,58 @@ module Sudoku
           info_text_widget.text = "time: #{Time.now.strftime('%T')}, tick: #{tick}"
         end
 
-        window.on(:mouse_down, &method(:handle_click))
         window.on(:key_down,   &method(:handle_key))
-      end
-
-      def handle_click(event)
-        clear_error
-
-        self.state = new_state_for(state, board, event)
+        window.on(:mouse_down, &method(:handle_click))
       end
 
       def handle_key(event)
         exit if event.key == 'q'
       end
 
+      def handle_click(click_event)
+        clear_error
 
-      # this method
-      # - is too long
-      # - is too complex
-      # - does too much
-      #   - it decides what the new state should be, given the current state and event
-      #     - this is its intended purpose
-      #   - has a side effect - calls fill_cell, which
-      #     - makes request to backend
-      #     - mutates board on success
+        event = translate_event(click_event, self.board)
+        event = trigger_side_effects_for(self.state, event)
+
+        self.state = new_state_for(self.state, self.board, event)
+      end
+
+
+      def translate_event(click_event, board)
+        if board.contains?(click_event)
+          Events::CellClicked.new(board.cell_for(click_event))
+        elsif (clicked_button = @buttons.find { |button| button.contains?(click_event) })
+          Events::ButtonClicked.new(clicked_button)
+        else
+          Events::Dummy.new
+        end
+      end
+
+      def trigger_side_effects_for(current_state, event)
+        case [current_state, event]
+        in [States::EmptyCellSelected, Events::ButtonClicked]
+          case fill_cell(current_state.cell, event.button.data)
+          in Success(_, finished) then Events::CellFilled.new(finished)
+          in Failure(_)           then Events::Dummy.new
+          end
+        else
+          event
+        end
+      end
+
       def new_state_for(current_state, board, event)
-        return current_state if current_state.is_a?(States::Victory)
-
-        if board.contains?(event)
-          cell = board.cell_for(event)
-
-          if board.cell_filled?(cell)
-            States::FilledCellSelected.new(cell)
+        case [current_state, event]
+        in [States::Victory, _]
+          current_state
+        in [_, Events::CellClicked]
+          if board.cell_filled?(event.cell)
+            States::FilledCellSelected.new(event.cell)
           else
-            States::EmptyCellSelected.new(cell)
+            States::EmptyCellSelected.new(event.cell)
           end
-        elsif current_state.is_a?(States::EmptyCellSelected)
-          if (clicked_button = @buttons.find { |button| button.contains?(event) })
-            case fill_cell(current_state.cell, clicked_button.data)
-            in Success(_, finished) then
-              finished ? States::Victory.new : States::WaitingForCellSelection.new
-            in Failure(_)
-              States::WaitingForCellSelection.new
-            end
-          else
-            current_state
-          end
+        in [_, Events::CellFilled]
+          event.finished ? States::Victory.new : States::WaitingForCellSelection.new
         else
           current_state
         end
