@@ -4,8 +4,8 @@ module Shapes
   class Grid
     Cell = Struct.new(:row, :column, :x, :y, :width, :height, keyword_init: true) do
       def inspect
-        "#<#{self.class.name} row=#{row} column=#{column} x=#{x.to_i} y=#{y.to_i} " \
-          "width=#{width.to_i} heigth=#{height.to_i}>"
+        "#<#{self.class.name} row=#{row} column=#{column} x=#{Integer(x)} y=#{Integer(y)} " \
+          "width=#{Integer(width)} heigth=#{Integer(height)}>"
       end
 
       def to_s
@@ -22,8 +22,8 @@ module Shapes
       @height       = height
       @rows         = rows
       @columns      = columns
-      @cell_height  = height.to_f / rows
-      @cell_width   = width.to_f  / columns
+      @cell_height  = Float(height) / rows
+      @cell_width   = Float(width)  / columns
       @children     = {}
 
       (1..@rows).each do |row|
@@ -54,8 +54,8 @@ module Shapes
     def cell_for(coords)
       return unless contains?(coords)
 
-      row    = ((coords.y - @y) / @cell_height + 1).to_i
-      column = ((coords.x - @x) / @cell_width  + 1).to_i
+      row    = Integer((coords.y - @y) / @cell_height + 1)
+      column = Integer((coords.x - @x) / @cell_width  + 1)
 
       full_cell_for(row, column)
     end

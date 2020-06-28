@@ -1,3 +1,10 @@
+AllCops:
+  EnabledByDefault: true
+  TargetRubyVersion: 2.7
+
+Bundler/GemComment:
+  Enabled: false
+
 Layout/HeredocIndentation:
   Enabled: false
 
@@ -8,10 +15,31 @@ Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
   NumberOfEmptyLines: [1, 2]
 
+Layout/FirstArrayElementLineBreak:
+  Enabled: false
+
+Layout/FirstMethodArgumentLineBreak:
+  Enabled: false
+
+Layout/FirstMethodParameterLineBreak:
+  Enabled: false
+
 Layout/LineLength:
   Max: 100
 
+Layout/MultilineArrayLineBreaks:
+  Enabled: false
+
+Layout/MultilineAssignmentLayout:
+  Enabled: false
+
+Layout/MultilineMethodArgumentLineBreaks:
+  Enabled: false
+
 Layout/SpaceInsideArrayLiteralBrackets:
+  Enabled: false
+
+Lint/ConstantResolution:
   Enabled: false
 
 Metrics/AbcSize:
@@ -32,10 +60,19 @@ Naming/MethodParameterName:
 Style/AccessModifierDeclarations:
   Enabled: false
 
-Style/BracesAroundHashParameters:
-  EnforcedStyle: context_dependent
+Style/ConstantVisibility:
+  Enabled: false
+
+Style/Copyright:
+  Enabled: false
+
+Style/DisableCopsWithinSourceCodeDirective:
+  Enabled: false
 
 Style/Documentation:
+  Enabled: false
+
+Style/DocumentationMethod:
   Enabled: false
 
 Style/EmptyMethod:
@@ -44,5 +81,21 @@ Style/EmptyMethod:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-AllCops:
-  TargetRubyVersion: 2.7
+Style/MethodCallWithArgsParentheses:
+  IgnoredMethods:
+    - gem
+    - puts
+    - raise
+    - require
+    - require_relative
+    - source
+    - unshift
+
+Style/MissingElse:
+  EnforcedStyle: case
+
+Style/RedundantSelf:
+  Enabled: false
+
+Style/StringHashKeys:
+  Enabled: false
