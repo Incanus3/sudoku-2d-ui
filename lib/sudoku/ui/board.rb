@@ -3,6 +3,10 @@ require_relative 'shapes'
 module Sudoku
   module UI
     class Board
+      extend Forwardable
+
+      def_delegators :@grid, :cell_filled?, :number_depleted?
+
       DEFAULT_BORDER_COLOR = 'green'.freeze
 
       attr_reader :x, :y, :width, :height
@@ -60,6 +64,7 @@ module Sudoku
         end
       end
 
+
       def add
         all_shapes.each(&:add)
       end
@@ -74,10 +79,6 @@ module Sudoku
 
       def cell_for(event)
         @cell_borders_grid.cell_for(event)
-      end
-
-      def cell_filled?(cell)
-        @grid.cell_filled?(cell)
       end
 
       def fill_cell(cell, number)

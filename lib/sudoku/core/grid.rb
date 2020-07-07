@@ -25,5 +25,9 @@ module Sudoku
     def completely_filled?
       self.matrix.flatten.all?
     end
+
+    def number_depleted?(number)
+      self.matrix.flatten.count(number) == self.matrix.size
+    end
   end
 end

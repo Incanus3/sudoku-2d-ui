@@ -10,8 +10,8 @@ module Shapes
     DEFAULT_FONT_COLOR = 'white'.freeze
 
     def initialize(text, x:, y:,
-                   font: DEFAULT_FONT, size: DEFAULT_FONT_SIZE, color: DEFAULT_FONT_COLOR)
-      super(Ruby2D::Text.new(text, font: font, size: size, color: color, x: x, y: y))
+                   font: DEFAULT_FONT, size: DEFAULT_FONT_SIZE, color: DEFAULT_FONT_COLOR, **kwargs)
+      super(Ruby2D::Text.new(text, font: font, size: size, color: color, x: x, y: y, **kwargs))
     end
   end
 

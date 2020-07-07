@@ -35,11 +35,11 @@ module Sudoku
                               x: layout.board_x_offset, y: layout.board_y_offset,
                               width: layout.board_size, height: layout.board_size)
 
-          init_widgets(layout, @state)
+          init_widgets(layout, @state, @board)
         end
       end
 
-      private def init_widgets(layout, state, top_texts_color: DEFAULT_TEXT_COLOR)
+      private def init_widgets(layout, state, board, top_texts_color: DEFAULT_TEXT_COLOR)
         @info_text_widget  = Shapes::Text.new('',
                                               x: layout.text_spacer, y: layout.info_text_y_offset,
                                               size: layout.font_size, color: top_texts_color)
@@ -51,7 +51,7 @@ module Sudoku
                                               size: layout.font_size, color: top_texts_color)
         @separator         = horizontal_separator(position: layout.texts_height,
                                                   length: layout.window_width)
-        @buttons           = buttons(layout)
+        @buttons           = buttons(layout, board)
       end
 
       def show
@@ -82,12 +82,13 @@ module Sudoku
       end
 
 
-      def buttons(layout)
+      def buttons(layout, board)
         width = layout.buttons_height
 
         (0..8).map { |index|
           Sudoku::UI::Button.new(
             data: index + 1,
+            enabled: !board.number_depleted?(index + 1),
             x: layout.buttons_x_offset + index * (width + layout.button_spacer),
             y: layout.buttons_y_offset,
             width: width,
@@ -130,7 +131,7 @@ module Sudoku
       def translate_event(click_event, board)
         if board.contains?(click_event)
           Events::CellClicked.new(board.cell_for(click_event))
-        elsif (clicked_button = @buttons.find { |button| button.contains?(click_event) })
+        elsif (clicked_button = @buttons.find { |button| button.contains?(click_event) && button.enabled })
           Events::ButtonClicked.new(clicked_button)
         else
           Events::Dummy.new
@@ -140,9 +141,15 @@ module Sudoku
       def trigger_side_effects_for(current_state, event)
         case [current_state, event]
         in [States::EmptyCellSelected, Events::ButtonClicked]
-          case fill_cell(current_state.cell, event.button.data)
-          in Success(_, finished) then Events::CellFilled.new(finished)
-          in Failure(_)           then Events::Dummy.new
+          number = event.button.data
+
+          case fill_cell(current_state.cell, number)
+          in Success(_, finished)
+            event.button.enabled = false if self.board.number_depleted?(number)
+
+            Events::CellFilled.new(finished)
+          in Failure(_)
+            Events::Dummy.new
           end
         else
           event
@@ -169,7 +176,7 @@ module Sudoku
 
       def fill_cell(cell, number)
         case result = client.fill_cell(game, cell, number)
-        in Success        then board.fill_cell(cell, number)
+        in Success        then self.board.fill_cell(cell, number)
         in Failure(error) then self.error = error
         end
 

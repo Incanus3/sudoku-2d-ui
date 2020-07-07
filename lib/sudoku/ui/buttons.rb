@@ -4,12 +4,13 @@ module Sudoku
       DEFAULT_TEXT_COLOR   = 'white'.freeze
       DEFAULT_BORDER_COLOR = 'green'.freeze
 
-      attr_reader :text, :data
+      attr_reader :text, :data, :enabled
 
-      def initialize(data: nil, text: data.to_s, x:, y:, width:, height:,
+      def initialize(data: nil, text: data.to_s, enabled: true, x:, y:, width:, height:,
                      border_color: DEFAULT_BORDER_COLOR, text_color: DEFAULT_TEXT_COLOR)
-        @text = text
-        @data = data
+        @text    = text
+        @data    = data
+        @enabled = enabled
 
         # text size and offsets are duplicated from GridWithChars
         # TODO: extract this
@@ -21,7 +22,7 @@ module Sudoku
                                              border_color: border_color)
         @text_widget = Shapes::Text.new(text,
                                         x: x + text_x_offset, y: y + text_y_offset,
-                                        size: text_size, color: text_color)
+                                        size: text_size, color: text_color, opacity: enabled ? 1 : 0.5)
       end
 
       def add
@@ -42,6 +43,11 @@ module Sudoku
 
       def to_s
         inspect
+      end
+
+      def enabled=(value)
+        @enabled             = value
+        @text_widget.opacity = 0.5
       end
     end
   end
